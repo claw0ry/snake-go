@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
-	"time"
 
-	"github.com/veandco/go-sdl2/sdl"
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 const (
@@ -15,7 +13,7 @@ const (
 )
 
 var (
-	MAX_FPS uint32 = 15
+	MAX_FPS int32 = 15
 )
 
 type point struct {
@@ -23,38 +21,11 @@ type point struct {
 	y int32
 }
 
-type color struct {
-	r, g, b, a byte
-}
-
 func run() (err error) {
+	rl.InitWindow(WIN_W, WIN_H, "Snake-GO")
+	defer rl.CloseWindow()
 
-	var window *sdl.Window
-	var renderer *sdl.Renderer
-
-	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		return err
-	}
-	defer sdl.Quit()
-
-	window, err = sdl.CreateWindow(
-		"Snake-GO",
-		sdl.WINDOWPOS_CENTERED,
-		sdl.WINDOWPOS_CENTERED,
-		WIN_W,
-		WIN_H,
-		sdl.WINDOW_SHOWN,
-	)
-	if err != nil {
-		return err
-	}
-	defer window.Destroy()
-
-	renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
-	if err != nil {
-		return err
-	}
-	defer renderer.Destroy()
+	rl.SetTargetFPS(MAX_FPS)
 
 	// TODO: Need label for points
 	// TODO: Need label for highscore
@@ -64,92 +35,48 @@ func run() (err error) {
 	fruit := NewFruit(board)
 
 	// Game Loop
-	running := true
+	for !rl.WindowShouldClose() {
+		// 1. Process input
+		if rl.IsKeyPressed(rl.KeyW) {
+			snake.ChangeDirection(1)
+		}
 
-	for running {
-		// 1. Get Keyboard input
-		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch t := event.(type) {
-			case *sdl.QuitEvent:
-				running = false
-			case *sdl.KeyboardEvent:
-				keyCode := t.Keysym.Sym
-				keys := "" // for debugging
+		if rl.IsKeyPressed(rl.KeyD) {
+			snake.ChangeDirection(2)
+		}
 
-				if keyCode < 10000 {
-					if t.State == sdl.PRESSED {
+		if rl.IsKeyPressed(rl.KeyS) {
+			snake.ChangeDirection(3)
+		}
 
-						// key: w
-						if keyCode == 119 {
-							// Change direction to up
-							snake.ChangeDirection(1)
-						}
+		if rl.IsKeyPressed(rl.KeyA) {
+			snake.ChangeDirection(4)
+		}
 
-						// key: d
-						if keyCode == 100 {
-							// Change direction to right
-							snake.ChangeDirection(2)
-						}
+		if rl.IsKeyPressed(rl.KeyEscape) {
+			snake.ChangeDirection(0)
+		}
 
-						// key: s
-						if keyCode == 115 {
-							// Change direction to down
-							snake.ChangeDirection(3)
-						}
-
-						// key: a
-						if keyCode == 97 {
-							// change direction to left
-							snake.ChangeDirection(4)
-						}
-
-						// key: ESC
-						if keyCode == 27 {
-							// change direction to stop
-							snake.ChangeDirection(0)
-						}
-
-						if keyCode == 32 {
-							snake.Reset()
-							fruit.Update()
-						}
-					}
-
-					// if t.Repeat > 0 {
-					// 	keys += string(keyCode) + " repeating"
-					// } else {
-					// 	if t.State == sdl.RELEASED {
-					// 		keys += string(keyCode) + " released"
-					// 	} else if t.State == sdl.PRESSED {
-					// 		keys += string(keyCode) + " pressed"
-					// 	}
-					// }
-				}
-
-				// For debug purposes
-				if keys != "" {
-					fmt.Printf("KeyCode: %v\n", keyCode)
-					fmt.Println("Keys: " + keys)
-				}
-			}
-		} // end for event
+		if rl.IsKeyPressed(rl.KeySpace) {
+			snake.Reset()
+			fruit.Update()
+		}
 
 		// 2. Update objects
 		update(snake, fruit)
 
 		// 3. Draw objects
+		rl.BeginDrawing()
 
-		// clear screen
-		renderer.SetDrawColor(0, 0, 0, 255)
-		renderer.Clear()
+		rl.ClearBackground(rl.RayWhite)
 
-		board.Draw(renderer)
-		snake.Draw(renderer)
-		fruit.Draw(renderer)
+		board.Draw()
+		snake.Draw()
+		fruit.Draw()
 
-		renderer.Present()
-		sdl.Delay(1000 / MAX_FPS)
+		rl.EndDrawing()
 	}
+
 
 	return
 }
@@ -183,10 +110,8 @@ func update(s *snake, f *fruit) {
 }
 
 func main() {
-
-	rand.Seed(time.Now().UnixNano())
-
 	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERR: %+v\n", err)
 		os.Exit(1)
 	}
 }

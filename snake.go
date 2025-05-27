@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 
-	"github.com/veandco/go-sdl2/sdl"
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type snake struct {
@@ -11,7 +12,7 @@ type snake struct {
 	body      []point
 	direction point
 	points    int
-	color     color
+	color     color.RGBA
 }
 
 func NewSnake(b *board) *snake {
@@ -24,7 +25,7 @@ func NewSnake(b *board) *snake {
 		},
 		direction: point{x: 0, y: 0},
 		points:    0,
-		color:     color{255, 0, 0, 255},
+		color:     color.RGBA{255, 0, 0, 255},
 	}
 }
 
@@ -108,7 +109,7 @@ func (s *snake) Reset() {
 	}
 	s.direction = point{x: 0, y: 0}
 	s.points = 0
-	s.color = color{255, 0, 0, 255}
+	s.color = color.RGBA{255, 0, 0, 255}
 }
 
 func (s *snake) Eat(f *fruit) {
@@ -164,19 +165,19 @@ func (s *snake) DetectCollision() bool {
 	return false
 }
 
-func (s *snake) Draw(r *sdl.Renderer) {
-	var rects []sdl.Rect
-
+func (s *snake) Draw() {
 	for _, v := range s.body {
-		rects = append(rects, sdl.Rect{
-			X: v.x * int32(s.board.scale),
-			Y: v.y * int32(s.board.scale),
-			W: int32(s.board.scale),
-			H: int32(s.board.scale),
-		})
-
+		rl.DrawRectangle(
+			v.x * int32(s.board.scale),
+			v.y * int32(s.board.scale),
+			int32(s.board.scale),
+			int32(s.board.scale),
+			color.RGBA{
+				s.color.R,
+				s.color.G,
+				s.color.B,
+				s.color.A,
+			},
+		)
 	}
-
-	r.SetDrawColor(s.color.r, s.color.g, s.color.b, s.color.a)
-	r.FillRects(rects)
 }
