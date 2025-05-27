@@ -3,20 +3,21 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"image/color"
 
-	"github.com/veandco/go-sdl2/sdl"
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type fruit struct {
 	board *board
 	pos   point
-	color color
+	color color.RGBA
 }
 
 func NewFruit(b *board) *fruit {
 	f := &fruit{
 		board: b,
-		color: color{0, 255, 0, 255},
+		color: color.RGBA{0, 255, 0, 255},
 	}
 
 	f.Update()
@@ -33,14 +34,17 @@ func (f *fruit) Update() {
 	fmt.Printf("Fruit pos: %v\n", f.pos)
 }
 
-func (f *fruit) Draw(r *sdl.Renderer) {
-	var rect sdl.Rect
-	r.SetDrawColor(f.color.r, f.color.g, f.color.b, f.color.a)
-	rect = sdl.Rect{
-		X: f.pos.x * int32(f.board.scale),
-		Y: f.pos.y * int32(f.board.scale),
-		W: int32(f.board.scale),
-		H: int32(f.board.scale),
-	}
-	r.FillRect(&rect)
+func (f *fruit) Draw() {
+	rl.DrawRectangle(
+		f.pos.x * int32(f.board.scale),
+		f.pos.y * int32(f.board.scale),
+		int32(f.board.scale),
+		int32(f.board.scale),
+		color.RGBA{
+			f.color.R,
+			f.color.G,
+			f.color.B,
+			f.color.A,
+		},
+	);
 }

@@ -1,6 +1,6 @@
 package main
 
-import "github.com/veandco/go-sdl2/sdl"
+import rl "github.com/gen2brain/raylib-go/raylib"
 
 type board struct {
 	w, h  int
@@ -18,12 +18,12 @@ func NewBoard(w, h, x, y, scale int) *board {
 	}
 }
 
-func (b *board) Draw(r *sdl.Renderer) {
-	r.SetDrawColor(255, 255, 255, 255)
-	r.DrawRect(&sdl.Rect{
-		X: int32(b.x),
-		Y: int32(b.y),
-		W: int32(b.w),
-		H: int32(b.h),
-	})
+func (b *board) Draw() {
+	rl.DrawRectangle(
+		int32(b.x),
+		int32(b.y),
+		int32(b.w),
+		int32(b.h),
+		rl.RayWhite,
+	)
 }
