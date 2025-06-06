@@ -1,14 +1,18 @@
+// Copyright (c) 2025, Mads Moi-Aune <mads@moiaune.dev>
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
 package main
 
 import rl "github.com/gen2brain/raylib-go/raylib"
 
 type board struct {
-	w, h  int
-	x, y  int
-	scale int
+	w, h  float32
+	x, y  float32
+	scale float32
 }
 
-func NewBoard(w, h, x, y, scale int) *board {
+func NewBoard(w, h, x, y, scale float32) *board {
 	return &board{
 		w:     w,
 		h:     h,

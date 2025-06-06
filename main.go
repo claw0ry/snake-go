@@ -1,3 +1,7 @@
+// Copyright (c) 2025, Mads Moi-Aune <mads@moiaune.dev>
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
 package main
 
 import (
@@ -30,31 +34,32 @@ func run() (err error) {
 	// TODO: Need label for points
 	// TODO: Need label for highscore
 
-	board := NewBoard(int(WIN_W-20), int(WIN_H-30), 10, 20, int(BOARD_SCALE))
+	board := NewBoard(float32(WIN_W-20), float32(WIN_H-30), 10, 20, float32(BOARD_SCALE))
 	snake := NewSnake(board)
 	fruit := NewFruit(board)
+	pause := false
 
 	// Game Loop
 	for !rl.WindowShouldClose() {
 		// 1. Process input
 		if rl.IsKeyPressed(rl.KeyW) {
-			snake.ChangeDirection(1)
+			snake.ChangeDirection(DirectionUp)
 		}
 
 		if rl.IsKeyPressed(rl.KeyD) {
-			snake.ChangeDirection(2)
+			snake.ChangeDirection(DirectionRight)
 		}
 
 		if rl.IsKeyPressed(rl.KeyS) {
-			snake.ChangeDirection(3)
+			snake.ChangeDirection(DirectionDown)
 		}
 
 		if rl.IsKeyPressed(rl.KeyA) {
-			snake.ChangeDirection(4)
+			snake.ChangeDirection(DirectionLeft)
 		}
 
-		if rl.IsKeyPressed(rl.KeyEscape) {
-			snake.ChangeDirection(0)
+		if rl.IsKeyPressed(rl.KeyP) {
+			pause = !pause
 		}
 
 		if rl.IsKeyPressed(rl.KeySpace) {
@@ -63,7 +68,9 @@ func run() (err error) {
 		}
 
 		// 2. Update objects
-		update(snake, fruit)
+		if !pause {
+			update(snake, fruit)
+		}
 
 		// 3. Draw objects
 		rl.BeginDrawing()
@@ -73,6 +80,12 @@ func run() (err error) {
 		board.Draw()
 		snake.Draw()
 		fruit.Draw()
+
+		rl.DrawText(fmt.Sprintf("%d", snake.GetPoints()), 10, 10, 12, rl.Black)
+
+		if pause {
+			rl.DrawText("PAUSED", WIN_W/2, WIN_H/2, 30, rl.Gray)
+		}
 
 		rl.EndDrawing()
 	}
@@ -99,7 +112,7 @@ func update(s *snake, f *fruit) {
 		MAX_FPS = 15
 	}
 
-	// Update SCORE LABEL
+	rl.SetTargetFPS(MAX_FPS)
 
 	if s.DetectCollision() {
 		s.Reset()

@@ -1,3 +1,7 @@
+// Copyright (c) 2025, Mads Moi-Aune <mads@moiaune.dev>
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
 package main
 
 import (
@@ -10,7 +14,7 @@ import (
 
 type fruit struct {
 	board *board
-	pos   point
+	pos   rl.Vector2
 	color color.RGBA
 }
 
@@ -26,9 +30,9 @@ func NewFruit(b *board) *fruit {
 }
 
 func (f *fruit) Update() {
-	f.pos = point{
-		x: int32(rand.Intn((f.board.w+f.board.x)/f.board.scale) + 1),
-		y: int32(rand.Intn((f.board.h+f.board.y-20)/f.board.scale) + 2),
+	f.pos = rl.Vector2{
+		X: float32(rand.Intn(int((f.board.w+f.board.x)/f.board.scale) + 1)),
+		Y: float32(rand.Intn(int((f.board.h+f.board.y-20)/f.board.scale) + 2)),
 	}
 
 	fmt.Printf("Fruit pos: %v\n", f.pos)
@@ -36,8 +40,8 @@ func (f *fruit) Update() {
 
 func (f *fruit) Draw() {
 	rl.DrawRectangle(
-		f.pos.x * int32(f.board.scale),
-		f.pos.y * int32(f.board.scale),
+		int32(f.pos.X * f.board.scale),
+		int32(f.pos.Y * f.board.scale),
 		int32(f.board.scale),
 		int32(f.board.scale),
 		color.RGBA{
